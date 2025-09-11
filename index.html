@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>IdeaScout｜题材灵感雷达 · v3a</title>
+<title>IdeaScout｜题材灵感雷达 · v3b</title>
 <style>
   :root{--brand:#1f6feb;--bg:#fff;--fg:#0f172a;--muted:#64748b;--line:#e2e8f0;--chip:#f1f5f9;--card:#fff;--shadow:0 6px 18px rgba(15,23,42,.06)}
   *{box-sizing:border-box}body{margin:0;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Noto Sans SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:var(--fg);background:#fff}
@@ -15,8 +15,7 @@
   .card{break-inside:avoid;margin:0 0 22px;border:1px solid var(--line);border-radius:18px;background:var(--card);box-shadow:var(--shadow)}
   .cover{display:flex;align-items:center;justify-content:center;height:148px;border-bottom:1px solid var(--line);background:#fff}
   .cover .t{font-size:22px;font-weight:800;letter-spacing:.2px;line-height:1.2;text-align:center;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .p16{padding:16px}.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--chip);font-size:12px}
-  .badge{font-size:10px;padding:3px 8px;border-radius:999px;background:#eff6ff;color:#1e40af}
+  .p16{padding:16px}.badge{font-size:10px;padding:3px 8px;border-radius:999px;background:#eff6ff;color:#1e40af}
   .badge.A{background:#dcfce7;color:#065f46}.badge.B{background:#fef3c7;color:#92400e}.badge.C{background:#fee2e2;color:#991b1b}
   .hidden{display:none}.small{font-size:12px}.muted{color:var(--muted)}.to-top{position:fixed;right:18px;bottom:18px;z-index:50}
 </style>
@@ -24,7 +23,7 @@
 <body>
 <header>
   <div class="container row">
-    <div style="font-weight:800">IdeaScout <span class="small muted">v3a</span></div>
+    <div style="font-weight:800">IdeaScout <span class="small muted">v3b</span></div>
     <div class="grow"><input id="q" class="search" placeholder="可不输入，直接刷（Behance-like）"></div>
     <button id="btnOnline" class="btn">联网:关</button>
     <button id="btnAuto" class="btn">自动补卡:开</button>
@@ -41,123 +40,137 @@
 <button id="toTop" class="btn to-top hidden">▲ 回到顶部</button>
 
 <script>
-const families=["标准化/制度史","神圣之物/圣地","失落与误读","语言与文字","文明边界/地图","实验与心理","考古与灾难","钱币与度量衡"];
-function makeItem(o){return Object.assign({visual:1,contrarian:1,evidenceScore:1,controversy:1,modern:1,evidence:"A",tags:[],family:"标准化/制度史"},o)}
-const userHitSeed=[
-  makeItem({id:"pork",title:"犹太人和穆斯林为什么都不吃猪肉",hook:"同一块肉，为何在两大宗教里成了‘禁区’？",family:"神圣之物/圣地",tags:["宗教","禁忌","经典解读"],evidence:"A",visual:1,contrarian:2,evidenceScore:2,controversy:2,modern:1,isUserHit:true}),
-  makeItem({id:"bjtime",title:"中国横跨五个时区，为什么统一使用北京时间",hook:"跨五时区，却只用一个时间，这套制度如何运转？",family:"标准化/制度史",tags:["制度史","时间","地图"],evidence:"A",visual:1,contrarian:2,evidenceScore:2,controversy:1,modern:2,isUserHit:true}),
-  makeItem({id:"2ndchars",title:"这是二简字",hook:"那些被废止的‘更简’汉字，为什么活不过几年？",family:"语言与文字",tags:["语言","文字改革","制度史"],evidence:"A",visual:1,contrarian:1,evidenceScore:2,controversy:1,modern:1,isUserHit:true}),
-  makeItem({id:"seal",title:"传国玉玺之谜：为什么缺了一角",hook:"一块玉，承载王朝正统；缺角的背后是工艺还是政治？",family:"神圣之物/圣地",tags:["神器","国家象征","考古"],evidence:"B",visual:2,contrarian:1,evidenceScore:1,controversy:2,modern:0,isUserHit:true}),
-  makeItem({id:"atlantis",title:"亚特兰蒂斯——撒哈拉之眼",hook:"像极了传说的城邦遗迹，其实更像地质构造。",family:"失落与误读",tags:["失落文明","地质","误读纠偏","地图"],evidence:"B",visual:2,contrarian:2,evidenceScore:1,controversy:2,modern:0,isUserHit:true}),
-  makeItem({id:"coinedge",title:"硬币边缘的锯齿是谁发明的？有什么功能？",hook:"这圈锯齿不是装饰，它曾拯救过整套货币系统。",family:"钱币与度量衡",tags:["货币史","制度史","度量衡"],evidence:"A",visual:2,contrarian:2,evidenceScore:2,controversy:0,modern:2,isUserHit:true}),
-];
-const extraPool=[
-  makeItem({id:"rosetta",title:"罗塞塔石碑：死语复活的钥匙",hook:"一块石头、三种文字，如何让古埃及‘开口说话’？",family:"神圣之物/圣地",tags:["神器","语言","考古","经典解读"],evidence:"A",visual:2,contrarian:1,evidenceScore:2,controversy:0,modern:1}),
-  makeItem({id:"gregorian",title:"世界为何突然少了10天？格里高利历改革",hook:"1582年的一觉醒来，日历直接快进。谁按的？",family:"标准化/制度史",tags:["制度史","时间"],evidence:"A",visual:1,contrarian:2,evidenceScore:2,controversy:0,modern:2}),
-  makeItem({id:"metric",title:"公制与英制：美国为什么至今不改？",hook:"一把尺子背后，是工业与政治的缠斗。",family:"钱币与度量衡",tags:["制度史","度量衡"],evidence:"A",visual:1,contrarian:2,modern:2}),
-  makeItem({id:"antikythera",title:"安提基西拉机械：古代的‘计算器’",hook:"沉船里捞出的齿轮，能算天体运动。",family:"失落与误读",tags:["史前遗迹","工程","天文"],evidence:"A",visual:2}),
-  makeItem({id:"nazca",title:"纳斯卡线：天上的图画给谁看？",hook:"只能在空中看清的地面巨画，靠什么被画出来？",family:"失落与误读",tags:["史前遗迹","工程","误读纠偏"],evidence:"A",visual:2}),
-];
-const basePool=[...userHitSeed,...extraPool];
+(function(){
+  function safe(fn){try{fn&&fn()}catch(e){console.error(e)}}
+  const families=["标准化/制度史","神圣之物/圣地","失落与误读","语言与文字","文明边界/地图","实验与心理","考古与灾难","钱币与度量衡"];
+  function makeItem(o){return Object.assign({visual:1,contrarian:1,evidenceScore:1,controversy:1,modern:1,evidence:"A",tags:[],family:"标准化/制度史"},o)}
+  const userHitSeed=[
+    makeItem({id:"pork",title:"犹太人和穆斯林为什么都不吃猪肉",hook:"同一块肉，为何在两大宗教里成了‘禁区’？",family:"神圣之物/圣地",tags:["宗教","禁忌","经典解读"],evidence:"A",visual:1,contrarian:2,evidenceScore:2,controversy:2,modern:1,isUserHit:true}),
+    makeItem({id:"bjtime",title:"中国横跨五个时区，为什么统一使用北京时间",hook:"跨五时区，却只用一个时间，这套制度如何运转？",family:"标准化/制度史",tags:["制度史","时间","地图"],evidence:"A",visual:1,contrarian:2,evidenceScore:2,controversy:1,modern:2,isUserHit:true}),
+    makeItem({id:"2ndchars",title:"这是二简字",hook:"那些被废止的‘更简’汉字，为什么活不过几年？",family:"语言与文字",tags:["语言","文字改革","制度史"],evidence:"A",visual:1,contrarian:1,evidenceScore:2,controversy:1,modern:1,isUserHit:true}),
+    makeItem({id:"seal",title:"传国玉玺之谜：为什么缺了一角",hook:"一块玉，承载王朝正统；缺角的背后是工艺还是政治？",family:"神圣之物/圣地",tags:["神器","国家象征","考古"],evidence:"B",visual:2,contrarian:1,evidenceScore:1,controversy:2,modern:0,isUserHit:true}),
+    makeItem({id:"atlantis",title:"亚特兰蒂斯——撒哈拉之眼",hook:"像极了传说的城邦遗迹，其实更像地质构造。",family:"失落与误读",tags:["失落文明","地质","误读纠偏","地图"],evidence:"B",visual:2,contrarian:2,evidenceScore:1,controversy:2,modern:0,isUserHit:true}),
+    makeItem({id:"coinedge",title:"硬币边缘的锯齿是谁发明的？有什么功能？",hook:"这圈锯齿不是装饰，它曾拯救过整套货币系统。",family:"钱币与度量衡",tags:["货币史","制度史","度量衡"],evidence:"A",visual:2,contrarian:2,evidenceScore:2,controversy:0,modern:2,isUserHit:true}),
+  ];
+  const extraPool=[
+    makeItem({id:"rosetta",title:"罗塞塔石碑：死语复活的钥匙",hook:"一块石头、三种文字，如何让古埃及‘开口说话’？",family:"神圣之物/圣地",tags:["神器","语言","考古","经典解读"],evidence:"A",visual:2,contrarian:1,evidenceScore:2,controversy:0,modern:1}),
+    makeItem({id:"gregorian",title:"世界为何突然少了10天？格里高利历改革",hook:"1582年的一觉醒来，日历直接快进。谁按的？",family:"标准化/制度史",tags:["制度史","时间"],evidence:"A",visual:1,contrarian:2,evidenceScore:2,controversy:0,modern:2}),
+    makeItem({id:"metric",title:"公制与英制：美国为什么至今不改？",hook:"一把尺子背后，是工业与政治的缠斗。",family:"钱币与度量衡",tags:["制度史","度量衡"],evidence:"A",visual:1,contrarian:2,modern:2}),
+    makeItem({id:"antikythera",title:"安提基西拉机械：古代的‘计算器’",hook:"沉船里捞出的齿轮，能算天体运动。",family:"失落与误读",tags:["史前遗迹","工程","天文"],evidence:"A",visual:2}),
+    makeItem({id:"nazca",title:"纳斯卡线：天上的图画给谁看？",hook:"只能在空中看清的地面巨画，靠什么被画出来？",family:"失落与误读",tags:["史前遗迹","工程","误读纠偏"],evidence:"A",visual:2}),
+  ];
+  const basePool=[...userHitSeed,...extraPool];
+  const S={query:"",pins:[],showPinsOnly:false,online:false,autoFeed:true,webHits:[],webQueue:[],webPage:0,itemsUser:[],visibleCount:40};
 
-const S={query:"",pins:JSON.parse(localStorage.getItem("ideaScoutPins")||"[]"),showPinsOnly:false,online:false,autoFeed:true,webHits:[],webQueue:[],webPage:0,itemsUser:[],visibleCount:40};
-function savePins(){localStorage.setItem("ideaScoutPins",JSON.stringify(S.pins))}
-function scoreItem(it){return (it.isUserHit?1:0)+(it.visual+it.contrarian+it.modern)-(it.controversy||0)}
-function genTitles(it){const h=it.title.split(/[：:]/)[0];return [`关于${h}，你可能误解的3件事`,`${h}：它是怎么影响我们的？`,`为什么${h}明明看不见，却改变了我们的日常？`]}
-function el(h){const d=document.createElement("div");d.innerHTML=h.trim();return d.firstElementChild}
-function escapeHtml(s){return (s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",""":"&quot;","'":"&#39;"}[m]))}
+  function el(h){const d=document.createElement("div");d.innerHTML=h.trim();return d.firstElementChild}
+  function escapeHtml(s){return (s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",""":"&quot;","'":"&#39;"}[m]))}
+  function scoreItem(it){return (it.isUserHit?1:0)+(it.visual+it.contrarian+it.modern)-(it.controversy||0)}
+  function genTitles(it){const h=it.title.split(/[：:]/)[0];return [`关于${h}，你可能误解的3件事`,`${h}：它是怎么影响我们的？`,`为什么${h}明明看不见，却改变了我们的日常？`]}
 
-function cardHTML(item,score){
-  const pinned=S.pins.includes(item.id);
-  return `<article class="card">
-    <div class="cover"><div class="t">${escapeHtml(item.title.split(/[:：]/)[0])}</div></div>
-    <div class="p16">
-      <div class="row" style="gap:8px">
-        ${item.isUserHit?'<span class="badge" style="background:#1f6feb;color:#fff">你的样本</span>':''}
-        <span class="badge" style="background:#eef2ff;color:#3730a3">${escapeHtml(item.family)}</span>
-        <span class="badge ${escapeHtml(item.evidence)}">证据 ${escapeHtml(item.evidence)}</span>
-        <span class="small muted" style="margin-left:auto">相似度 ${Math.max(0,Math.round(score))}</span>
-      </div>
-      <div style="font-weight:700;margin-top:6px">${escapeHtml(item.title)}</div>
-      <div class="muted small" style="margin-top:4px">${escapeHtml(item.hook||"")}</div>
-      <div class="chips" style="margin-top:6px">${(item.tags||[]).map(t=>`<span class="badge" style="border:1px solid var(--line);background:#f8fafc;color:#0f172a">${escapeHtml(t)}</span>`).join("")}</div>
-      <div class="row" style="margin-top:10px;gap:8px"><button class="btn pin ${pinned?'active':''}">${pinned?"📌 已收纳":"📍 收藏"}</button><button class="btn more">展开</button></div>
-      <div class="morebox hidden" style="margin-top:12px">
-        <div class="badge" style="background:#ecfeff;color:#164e63">标题建议</div>
-        <div class="small" style="margin-top:6px"></div>
-        <div class="badge" style="margin-top:10px;background:#f1f5f9;color:#0f172a">自检 (8项)</div>
-        <ul class="small" style="margin:6px 0 0 18px"><li>是否一眼能懂（视觉锚点）</li><li>开场有反常识冲突</li><li>观看后是否有获得感</li><li>观看后是否有惊喜感</li><li>快乐</li><li>知识</li><li>共鸣</li><li>节奏</li></ul>
-      </div>
-    </div></article>`;
-}
-function mountCard(node,item){
-  const titles=genTitles(item); node.querySelector(".morebox .small").textContent=titles.join(" / ");
-  const more=node.querySelector(".more"), box=node.querySelector(".morebox"); more.onclick=()=>{box.classList.toggle("hidden"); more.textContent=box.classList.contains("hidden")?"展开":"收起";};
-  const pin=node.querySelector(".pin"); pin.onclick=()=>{const i=S.pins.indexOf(item.id); if(i>=0)S.pins.splice(i,1); else S.pins.unshift(item.id); savePins(); update();};
-}
-
-function renderGrid(){
-  const grid=document.getElementById("grid"); grid.innerHTML="";
-  const full=[...basePool,...S.itemsUser];
-  const items=(S.showPinsOnly? full.filter(i=>S.pins.includes(i.id)) : full).map(i=>({item:i,score:scoreItem(i)})).sort((a,b)=>b.score-a.score);
-  const shown=items.slice(0,S.visibleCount);
-  document.getElementById("summary").textContent=`为你找到 ${items.length} 条方向相似的灵感 · 正在展示 ${shown.length} 条`;
-  shown.forEach(({item,score})=>{const node=el(cardHTML(item,score)); mountCard(node,item); grid.appendChild(node);});
-}
-
-function pushSynthFromSeeds(n=6){
-  for(let i=0;i<n;i++){
-    const pool=Math.random()<0.7?userHitSeed:extraPool;
-    const seed=pool[Math.floor(Math.random()*pool.length)];
-    const id="gen_"+Date.now()+"_"+Math.floor(Math.random()*10000);
-    const head=seed.title.split(/[：:]/)[0];
-    const variants=[`关于${head}，你可能误解的3件事`,`${head}：它是怎么影响我们的？`,`为什么${head}明明看不见，却改变了我们的日常？`,`如果没有${head}，我们的生活会怎样？`];
-    S.itemsUser.unshift(makeItem({id,title:variants[Math.floor(Math.random()*variants.length)],hook:seed.hook,family:seed.family,tags:seed.tags,evidence:"B",visual:seed.visual||1,contrarian:seed.contrarian||1,evidenceScore:1,controversy:1,modern:1}));
+  function cardHTML(item,score){
+    const pinned=S.pins.includes(item.id);
+    return `<article class="card">
+      <div class="cover"><div class="t">${escapeHtml(item.title.split(/[:：]/)[0])}</div></div>
+      <div class="p16">
+        <div class="row" style="gap:8px">
+          ${item.isUserHit?'<span class="badge" style="background:#1f6feb;color:#fff">你的样本</span>':''}
+          <span class="badge" style="background:#eef2ff;color:#3730a3">${escapeHtml(item.family)}</span>
+          <span class="badge ${escapeHtml(item.evidence)}">证据 ${escapeHtml(item.evidence)}</span>
+          <span class="small muted" style="margin-left:auto">相似度 ${Math.max(0,Math.round(score))}</span>
+        </div>
+        <div style="font-weight:700;margin-top:6px">${escapeHtml(item.title)}</div>
+        <div class="muted small" style="margin-top:4px">${escapeHtml(item.hook||"")}</div>
+        <div class="row" style="margin-top:10px;gap:8px"><button class="btn pin ${pinned?'active':''}">${pinned?"📌 已收纳":"📍 收藏"}</button><button class="btn more">展开</button></div>
+        <div class="morebox hidden" style="margin-top:12px">
+          <div class="badge" style="background:#ecfeff;color:#164e63">标题建议</div>
+          <div class="small" style="margin-top:6px"></div>
+          <div class="badge" style="margin-top:10px;background:#f1f5f9;color:#0f172a">自检 (8项)</div>
+          <ul class="small" style="margin:6px 0 0 18px"><li>是否一眼能懂（视觉锚点）</li><li>开场有反常识冲突</li><li>观看后是否有获得感</li><li>观看后是否有惊喜感</li><li>快乐</li><li>知识</li><li>共鸣</li><li>节奏</li></ul>
+        </div>
+      </div></article>`;
   }
-}
+  function mountCard(node,item){
+    const titles=genTitles(item); node.querySelector(".morebox .small").textContent=titles.join(" / ");
+    const more=node.querySelector(".more"), box=node.querySelector(".morebox"); more.onclick=()=>{box.classList.toggle("hidden"); more.textContent=box.classList.contains("hidden")?"展开":"收起";};
+    const pin=node.querySelector(".pin"); pin.onclick=()=>{const i=S.pins.indexOf(item.id); if(i>=0)S.pins.splice(i,1); else S.pins.unshift(item.id); safe(()=>localStorage.setItem("ideaScoutPins",JSON.stringify(S.pins))); update();};
+  }
 
-function fetchWeb(page=0){
-  if(!S.online) {S.webHits=[];S.webQueue=[];S.webPage=0;return;}
-  const base=["宗教","制度史","地图","度量衡","语言","史前遗迹","失落文明"];
-  const baseQuery = (S.query.trim()||base[Math.floor(Math.random()*base.length)]);
-  const q=encodeURIComponent(baseQuery); const off=page*10;
-  const zh=`https://zh.wikipedia.org/w/api.php?action=query&list=search&srlimit=10&sroffset=${off}&srsearch=${q}&utf8=&format=json&origin=*`;
-  const en=`https://en.wikipedia.org/w/api.php?action=query&list=search&srlimit=10&sroffset=${off}&srsearch=${q}&utf8=&format=json&origin=*`;
-  Promise.all([fetch(zh).then(r=>r.json()),fetch(en).then(r=>r.json())]).then(([zhRes,enRes])=>{
-    const clean=s=>(s||"").replace(/<[^>]+>/g,""); const add=[];
-    (zhRes?.query?.search||[]).forEach(it=>add.push({title:it.title,snippet:clean(it.snippet),url:`https://zh.wikipedia.org/wiki/${encodeURIComponent(it.title)}`,source:"zhwiki"}));
-    (enRes?.query?.search||[]).forEach(it=>add.push({title:it.title,snippet:clean(it.snippet),url:`https://en.wikipedia.org/wiki/${encodeURIComponent(it.title)}`,source:"enwiki"}));
-    add.forEach(x=>{S.webHits.push(x);S.webQueue.push(x)}); S.webPage=page;
-  }).catch(()=>{});
-}
+  function renderGrid(){
+    const grid=document.getElementById("grid"); if(!grid) return;
+    grid.innerHTML="";
+    const full=[...basePool,...S.itemsUser];
+    const items=(S.showPinsOnly? full.filter(i=>S.pins.includes(i.id)) : full).map(i=>({item:i,score:scoreItem(i)})).sort((a,b)=>b.score-a.score);
+    const shown=items.slice(0,S.visibleCount);
+    const sum=document.getElementById("summary"); if(sum) sum.textContent=`为你找到 ${items.length} 条方向相似的灵感 · 正在展示 ${shown.length} 条`;
+    shown.forEach(({item,score})=>{const node=el(cardHTML(item,score)); mountCard(node,item); grid.appendChild(node);});
+  }
 
-function update(){
-  document.getElementById("btnOnline").classList.toggle("active",S.online);
-  document.getElementById("btnAuto").classList.toggle("active",S.autoFeed);
-  document.getElementById("btnOnline").textContent=S.online?"联网:开":"联网:关";
-  document.getElementById("btnAuto").textContent=S.autoFeed?"自动补卡:开":"自动补卡:关";
-  document.getElementById("btnPins").textContent=S.showPinsOnly?"查看全部":`清单(${S.pins.length})`;
-  renderGrid();
-}
+  function pushSynthFromSeeds(n=6){
+    for(let i=0;i<n;i++){
+      const pool=Math.random()<0.7?userHitSeed:extraPool;
+      const seed=pool[Math.floor(Math.random()*pool.length)];
+      const id="gen_"+Date.now()+"_"+Math.floor(Math.random()*10000);
+      const head=seed.title.split(/[：:]/)[0];
+      const variants=[`关于${head}，你可能误解的3件事`,`${head}：它是怎么影响我们的？`,`为什么${head}明明看不见，却改变了我们的日常？`,`如果没有${head}，我们的生活会怎样？`];
+      S.itemsUser.unshift(makeItem({id,title:variants[Math.floor(Math.random()*variants.length)],hook:seed.hook,family:seed.family,tags:seed.tags,evidence:"B",visual:seed.visual||1,contrarian:seed.contrarian||1,evidenceScore:1,controversy:1,modern:1}));
+    }
+  }
 
-function setup(){
-  const q=document.getElementById("q"); q.oninput=()=>{S.query=q.value||""; S.visibleCount=40; if(S.online) {S.webHits=[];S.webQueue=[];fetchWeb(0);} update();};
-  document.getElementById("btnOnline").onclick=()=>{S.online=!S.online; if(S.online) fetchWeb(0); update();};
-  document.getElementById("btnAuto").onclick=()=>{S.autoFeed=!S.autoFeed; update();};
-  document.getElementById("btnPins").onclick=()=>{S.showPinsOnly=!S.showPinsOnly; update();};
-  document.getElementById("btnExport").onclick=()=>{const full=[...basePool,...S.itemsUser].filter(i=>S.pins.includes(i.id)); const now=new Date().toISOString().slice(0,10); const text=["IdeaScout 选题清单（"+now+"）","",...full.map((i,idx)=>`${idx+1}. ${i.title}
-   Hook：${i.hook}
-   家族：${i.family}
-   标签：${i.tags.join("、")}
-   证据：${i.evidence}`)].join("
-"); const blob=new Blob([text],{type:"text/plain;charset=utf-8"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="IdeaScout_清单.txt"; a.click();};
-  const sentinel=document.getElementById("sentinel");
-  const io=new IntersectionObserver(es=>{es.forEach(en=>{if(en.isIntersecting){S.visibleCount+=30; if(S.autoFeed){let take=0; while(S.webQueue.length>0 && take<6){const h=S.webQueue.shift(); S.itemsUser.unshift(makeItem({id:"web_"+Date.now()+"_"+Math.floor(Math.random()*10000),title:h.title,hook:h.snippet||`外部线索：${h.title}`,family:families[0],tags:["制度史"],evidence:"B"})); take++;}
-        if(take<6){pushSynthFromSeeds(6-take);} if(S.online && S.webQueue.length<6){fetchWeb(S.webPage+1);} } update(); }})},{rootMargin:"900px 0px"}); io.observe(sentinel);
-  const toTop=document.getElementById("toTop"); window.addEventListener("scroll",()=>{ if(window.scrollY>600) toTop.classList.remove("hidden"); else toTop.classList.add("hidden");}); toTop.onclick=()=>window.scrollTo({top:0,behavior:"smooth"});
-  update();
-}
-setup();
+  function fetchWeb(page=0){
+    if(!S.online) {S.webHits=[];S.webQueue=[];S.webPage=0;return;}
+    const base=["宗教","制度史","地图","度量衡","语言","史前遗迹","失落文明"];
+    const baseQuery = (S.query.trim()||base[Math.floor(Math.random()*base.length)]);
+    const q=encodeURIComponent(baseQuery); const off=page*10;
+    const zh=`https://zh.wikipedia.org/w/api.php?action=query&list=search&srlimit=10&sroffset=${off}&srsearch=${q}&utf8=&format=json&origin=*`;
+    const en=`https://en.wikipedia.org/w/api.php?action=query&list=search&srlimit=10&sroffset=${off}&srsearch=${q}&utf8=&format=json&origin=*`;
+    Promise.all([fetch(zh).then(r=>r.json()),fetch(en).then(r=>r.json())]).then(([zhRes,enRes])=>{
+      const clean=s=>(s||"").replace(/<[^>]+>/g,""); const add=[];
+      (zhRes?.query?.search||[]).forEach(it=>add.push({title:it.title,snippet:clean(it.snippet),url:`https://zh.wikipedia.org/wiki/${encodeURIComponent(it.title)}`,source:"zhwiki"}));
+      (enRes?.query?.search||[]).forEach(it=>add.push({title:it.title,snippet:clean(it.snippet),url:`https://en.wikipedia.org/wiki/${encodeURIComponent(it.title)}`,source:"enwiki"}));
+      add.forEach(x=>{S.webHits.push(x);S.webQueue.push(x)}); S.webPage=page;
+    }).catch(()=>{});
+  }
+
+  function update(){
+    safe(()=>{document.getElementById("btnOnline").classList.toggle("active",S.online)});
+    safe(()=>{document.getElementById("btnAuto").classList.toggle("active",S.autoFeed)});
+    safe(()=>{document.getElementById("btnOnline").textContent=S.online?"联网:开":"联网:关"});
+    safe(()=>{document.getElementById("btnAuto").textContent=S.autoFeed?"自动补卡:开":"自动补卡:关"});
+    safe(()=>{document.getElementById("btnPins").textContent=S.showPinsOnly?"查看全部":`清单(${S.pins.length})`});
+    renderGrid();
+  }
+
+  function setup(){
+    // 读取本地清单（可能被Safari隐私模式禁用，因此用 try/catch）
+    safe(()=>{S.pins=JSON.parse(localStorage.getItem("ideaScoutPins")||"[]")});
+    // 如果什么都没有，主动塞一点种子，避免“空白屏”
+    if(basePool.length===0) pushSynthFromSeeds(12);
+    update();
+
+    const q=document.getElementById("q"); if(q){ q.addEventListener("input",()=>{S.query=q.value||""; S.visibleCount=40; if(S.online) {S.webHits=[];S.webQueue=[];fetchWeb(0);} update();}); }
+    const btnOnline=document.getElementById("btnOnline"); if(btnOnline) btnOnline.addEventListener("click",()=>{S.online=!S.online; if(S.online) fetchWeb(0); update();});
+    const btnAuto=document.getElementById("btnAuto"); if(btnAuto) btnAuto.addEventListener("click",()=>{S.autoFeed=!S.autoFeed; update();});
+    const btnPins=document.getElementById("btnPins"); if(btnPins) btnPins.addEventListener("click",()=>{S.showPinsOnly=!S.showPinsOnly; update();});
+    const btnExport=document.getElementById("btnExport"); if(btnExport) btnExport.addEventListener("click",()=>{
+      const full=[...basePool,...S.itemsUser].filter(i=>S.pins.includes(i.id));
+      const now=new Date().toISOString().slice(0,10);
+      const text=["IdeaScout 选题清单（"+now+"）","",...full.map((i,idx)=>`${idx+1}. ${i.title}\n   Hook：${i.hook}\n   家族：${i.family}\n   标签：${i.tags.join("、")}\n   证据：${i.evidence}`)].join("\n");
+      const blob=new Blob([text],{type:"text/plain;charset=utf-8"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="IdeaScout_清单.txt"; a.click();
+    });
+
+    const sentinel=document.getElementById("sentinel");
+    if(sentinel){
+      const io=new IntersectionObserver(es=>{es.forEach(en=>{if(en.isIntersecting){S.visibleCount+=30; if(S.autoFeed){let take=0; while(S.webQueue.length>0 && take<6){const h=S.webQueue.shift(); S.itemsUser.unshift(makeItem({id:"web_"+Date.now()+"_"+Math.floor(Math.random()*10000),title:h.title,hook:h.snippet||`外部线索：${h.title}`,family:families[0],tags:["制度史"],evidence:"B"})); take++;}
+            if(take<6){pushSynthFromSeeds(6-take);} if(S.online && S.webQueue.length<6){fetchWeb(S.webPage+1);} } update(); }})},{rootMargin:"900px 0px"});
+      io.observe(sentinel);
+    }
+
+    const toTop=document.getElementById("toTop"); window.addEventListener("scroll",()=>{ if(window.scrollY>600) toTop.classList.remove("hidden"); else toTop.classList.add("hidden");}); toTop.onclick=()=>window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  if(document.readyState==="loading"){ window.addEventListener("DOMContentLoaded", setup); }
+  else { setup(); }
+})();
 </script>
 </body>
 </html>

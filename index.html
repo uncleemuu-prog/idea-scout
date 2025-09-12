@@ -3,268 +3,264 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>IdeaScout｜题材灵感雷达 · v3c</title>
+<title>IdeaScout｜题材灵感雷达 · 无限版</title>
 <style>
-  :root{--brand:#1f6feb;--bg:#fff;--fg:#0f172a;--muted:#64748b;--line:#e2e8f0;--chip:#f1f5f9;--card:#fff;--shadow:0 6px 18px rgba(15,23,42,.06)}
-  *{box-sizing:border-box}body{margin:0;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Noto Sans SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:var(--fg);background:#fff}
-  a{color:var(--brand)}header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-  .container{max-width:1320px;margin:0 auto;padding:14px 18px}.row{display:flex;gap:12px;align-items:center}.grow{flex:1}
-  .search{width:100%;padding:12px 16px;border:1px solid var(--line);border-radius:999px}
-  .btn{padding:9px 14px;border:1px solid var(--line);border-radius:999px;background:#fff;cursor:pointer;transition:.15s}.btn:hover{background:#f8fafc}.btn.active{background:var(--brand);border-color:var(--brand);color:#fff}
-  .grid{column-count:1;column-gap:22px}@media(min-width:900px){.grid{column-count:3}}@media(min-width:1200px){.grid{column-count:4}}@media(min-width:1600px){.grid{column-count:5}}
-  .card{break-inside:avoid;margin:0 0 22px;border:1px solid var(--line);border-radius:18px;background:var(--card);box-shadow:var(--shadow)}
-  .cover{display:flex;align-items:center;justify-content:center;height:148px;border-bottom:1px solid var(--line);background:#fff}
+  :root{
+    --brand:#1f6feb; --fg:#0f172a; --muted:#64748b; --line:#e2e8f0; --chip:#f1f5f9; --card:#fff;
+    --shadow:0 8px 24px rgba(15,23,42,.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Noto Sans SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:var(--fg);background:#fff}
+  a{color:var(--brand);text-decoration:none}
+  header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .container{max-width:1320px;margin:0 auto;padding:12px 16px}
+  .row{display:flex;gap:10px;align-items:center}
+  .grow{flex:1}
+  .search{width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:999px}
+  .btn{padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:#fff;cursor:pointer;transition:.15s}
+  .btn:hover{background:#f8fafc}
+  .btn.active{background:var(--brand);border-color:var(--brand);color:#fff}
+  .grid{column-count:1;column-gap:22px}
+  @media(min-width:900px){.grid{column-count:3}}
+  @media(min-width:1200px){.grid{column-count:4}}
+  @media(min-width:1600px){.grid{column-count:5}}
+  .card{break-inside:avoid;margin:0 0 22px;border:1px solid var(--line);border-radius:18px;background:var(--card);box-shadow:var(--shadow);overflow:hidden}
+  .cover{display:flex;align-items:center;justify-content:center;height:150px;border-bottom:1px solid var(--line);background:#fff}
   .cover .t{font-size:22px;font-weight:800;letter-spacing:.2px;line-height:1.2;text-align:center;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .p16{padding:16px}.badge{font-size:10px;padding:3px 8px;border-radius:999px;background:#eff6ff;color:#1e40af}
-  .badge.A{background:#dcfce7;color:#065f46}.badge.B{background:#fef3c7;color:#92400e}.badge.C{background:#fee2e2;color:#991b1b}
-  .hidden{display:none}.small{font-size:12px}.muted{color:var(--muted)}.to-top{position:fixed;right:18px;bottom:18px;z-index:50}
-  #err{position:fixed;left:0;right:0;top:0;background:#fee2e2;color:#991b1b;padding:10px 14px;font-size:12px;display:none;z-index:9999;border-bottom:1px solid #fecaca}
+  .p16{padding:16px}.chips{display:flex;flex-wrap:wrap;gap:6px}.badge{font-size:11px;padding:3px 8px;border-radius:999px;background:#eef2ff;color:#1e40af;border:1px solid var(--line)}
+  .bA{background:#dcfce7;color:#065f46}.bB{background:#fef3c7;color:#92400e}.bC{background:#fee2e2;color:#991b1b}
+  .muted{color:var(--muted)}.small{font-size:12px}
+  .to-top{position:fixed;right:18px;bottom:18px;z-index:50}
+  /* Modal */
+  .mask{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:60}
+  .modal{width:min(980px,92vw);max-height:92vh;background:#fff;border-radius:18px;box-shadow:var(--shadow);border:1px solid var(--line);overflow:auto}
+  .mhead{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:14px 16px;z-index:1}
+  .mbody{padding:14px 16px}
+  .ul{margin:8px 0 0 18px}
 </style>
 </head>
 <body>
-<div id="err"></div>
 <header>
   <div class="container row">
-    <div style="font-weight:800">IdeaScout <span class="small muted">v3c</span></div>
-    <div class="grow"><input id="q" class="search" placeholder="可不输入，直接刷（Behance-like）"></div>
-    <button id="btnOnline" class="btn">联网:关</button>
-    <button id="btnAuto" class="btn">自动补卡:开</button>
+    <div style="font-weight:800">IdeaScout <span class="small muted">v3j (无限版)</span></div>
+    <div class="grow"><input id="q" class="search" placeholder="可不输入，直接刷（Behance / Pinterest 风格）"></div>
+    <button id="btnOnline" class="btn" title="可选，不打开也能用">联网:关</button>
+    <button id="btnAuto" class="btn active" title="滚到底自动补卡">自动补卡:开</button>
     <button id="btnPins" class="btn">清单(0)</button>
     <button id="btnExport" class="btn">导出</button>
   </div>
 </header>
-
 <main class="container">
-  <div id="summary" class="small muted" style="margin:10px 0">（静态首屏·可用，无脚本也有内容）</div>
-  <div id="grid" class="grid">
-    
-    <article class="card">
-      <div class="cover"><div class="t">世界为何突然少了10天？格里高利历改革</div></div>
-      <div class="p16">
-        <div class="row" style="gap:8px">
-          <span class="badge" style="background:#eef2ff;color:#3730a3">标准化/制度史</span>
-          <span class="badge A">证据 A</span>
-          <span class="small muted" style="margin-left:auto">相似度 6</span>
-        </div>
-        <div style="font-weight:700;margin-top:6px">世界为何突然少了10天？格里高利历改革</div>
-        <div class="muted small" style="margin-top:4px">1582年的一觉醒来，日历直接快进。谁按的？</div>
-        <div class="row" style="margin-top:10px;gap:8px"><button class="btn">📍 收藏</button><button class="btn">展开</button></div>
-      </div>
-    </article>
-    
-    <article class="card">
-      <div class="cover"><div class="t">公制与英制</div></div>
-      <div class="p16">
-        <div class="row" style="gap:8px">
-          <span class="badge" style="background:#eef2ff;color:#3730a3">钱币与度量衡</span>
-          <span class="badge A">证据 A</span>
-          <span class="small muted" style="margin-left:auto">相似度 6</span>
-        </div>
-        <div style="font-weight:700;margin-top:6px">公制与英制：美国为什么至今不改？</div>
-        <div class="muted small" style="margin-top:4px">一把尺子背后，是工业与政治的缠斗。</div>
-        <div class="row" style="margin-top:10px;gap:8px"><button class="btn">📍 收藏</button><button class="btn">展开</button></div>
-      </div>
-    </article>
-    
-    <article class="card">
-      <div class="cover"><div class="t">安提基西拉机械</div></div>
-      <div class="p16">
-        <div class="row" style="gap:8px">
-          <span class="badge" style="background:#eef2ff;color:#3730a3">失落与误读</span>
-          <span class="badge A">证据 A</span>
-          <span class="small muted" style="margin-left:auto">相似度 6</span>
-        </div>
-        <div style="font-weight:700;margin-top:6px">安提基西拉机械：古代的‘计算器’</div>
-        <div class="muted small" style="margin-top:4px">沉船里捞出的齿轮，能算天体运动。</div>
-        <div class="row" style="margin-top:10px;gap:8px"><button class="btn">📍 收藏</button><button class="btn">展开</button></div>
-      </div>
-    </article>
-    
-    <article class="card">
-      <div class="cover"><div class="t">纳斯卡线</div></div>
-      <div class="p16">
-        <div class="row" style="gap:8px">
-          <span class="badge" style="background:#eef2ff;color:#3730a3">失落与误读</span>
-          <span class="badge A">证据 A</span>
-          <span class="small muted" style="margin-left:auto">相似度 6</span>
-        </div>
-        <div style="font-weight:700;margin-top:6px">纳斯卡线：天上的图画给谁看？</div>
-        <div class="muted small" style="margin-top:4px">只能在空中看清的地面巨画，靠什么被画出来？</div>
-        <div class="row" style="margin-top:10px;gap:8px"><button class="btn">📍 收藏</button><button class="btn">展开</button></div>
-      </div>
-    </article>
-    
-    <article class="card">
-      <div class="cover"><div class="t">罗塞塔石碑</div></div>
-      <div class="p16">
-        <div class="row" style="gap:8px">
-          <span class="badge" style="background:#eef2ff;color:#3730a3">神圣之物/圣地</span>
-          <span class="badge A">证据 A</span>
-          <span class="small muted" style="margin-left:auto">相似度 6</span>
-        </div>
-        <div style="font-weight:700;margin-top:6px">罗塞塔石碑：死语复活的钥匙</div>
-        <div class="muted small" style="margin-top:4px">一块石头、三种文字，如何让古埃及‘开口说话’？</div>
-        <div class="row" style="margin-top:10px;gap:8px"><button class="btn">📍 收藏</button><button class="btn">展开</button></div>
-      </div>
-    </article>
-    
-    <article class="card">
-      <div class="cover"><div class="t">犹太人和穆斯林为什么都不吃猪肉</div></div>
-      <div class="p16">
-        <div class="row" style="gap:8px">
-          <span class="badge" style="background:#eef2ff;color:#3730a3">神圣之物/圣地</span>
-          <span class="badge A">证据 A</span>
-          <span class="small muted" style="margin-left:auto">相似度 6</span>
-        </div>
-        <div style="font-weight:700;margin-top:6px">犹太人和穆斯林为什么都不吃猪肉</div>
-        <div class="muted small" style="margin-top:4px">同一块肉，为何在两大宗教里成了‘禁区’？</div>
-        <div class="row" style="margin-top:10px;gap:8px"><button class="btn">📍 收藏</button><button class="btn">展开</button></div>
-      </div>
-    </article>
-    
-    <article class="card">
-      <div class="cover"><div class="t">中国横跨五个时区，为什么统一使用北京时间</div></div>
-      <div class="p16">
-        <div class="row" style="gap:8px">
-          <span class="badge" style="background:#eef2ff;color:#3730a3">标准化/制度史</span>
-          <span class="badge A">证据 A</span>
-          <span class="small muted" style="margin-left:auto">相似度 6</span>
-        </div>
-        <div style="font-weight:700;margin-top:6px">中国横跨五个时区，为什么统一使用北京时间</div>
-        <div class="muted small" style="margin-top:4px">跨五时区，却只用一个时间，这套制度如何运转？</div>
-        <div class="row" style="margin-top:10px;gap:8px"><button class="btn">📍 收藏</button><button class="btn">展开</button></div>
-      </div>
-    </article>
-    
-    <article class="card">
-      <div class="cover"><div class="t">传国玉玺之谜</div></div>
-      <div class="p16">
-        <div class="row" style="gap:8px">
-          <span class="badge" style="background:#eef2ff;color:#3730a3">神圣之物/圣地</span>
-          <span class="badge B">证据 B</span>
-          <span class="small muted" style="margin-left:auto">相似度 6</span>
-        </div>
-        <div style="font-weight:700;margin-top:6px">传国玉玺之谜：为什么缺了一角</div>
-        <div class="muted small" style="margin-top:4px">一块玉，承载王朝正统；缺角的背后是工艺还是政治？</div>
-        <div class="row" style="margin-top:10px;gap:8px"><button class="btn">📍 收藏</button><button class="btn">展开</button></div>
-      </div>
-    </article>
-    
-    <article class="card">
-      <div class="cover"><div class="t">亚特兰蒂斯——撒哈拉之眼</div></div>
-      <div class="p16">
-        <div class="row" style="gap:8px">
-          <span class="badge" style="background:#eef2ff;color:#3730a3">失落与误读</span>
-          <span class="badge B">证据 B</span>
-          <span class="small muted" style="margin-left:auto">相似度 6</span>
-        </div>
-        <div style="font-weight:700;margin-top:6px">亚特兰蒂斯——撒哈拉之眼</div>
-        <div class="muted small" style="margin-top:4px">像极了传说的城邦遗迹，其实更像地质构造。</div>
-        <div class="row" style="margin-top:10px;gap:8px"><button class="btn">📍 收藏</button><button class="btn">展开</button></div>
-      </div>
-    </article>
-    
-    <article class="card">
-      <div class="cover"><div class="t">硬币边缘的锯齿是谁发明的？有什么功能？</div></div>
-      <div class="p16">
-        <div class="row" style="gap:8px">
-          <span class="badge" style="background:#eef2ff;color:#3730a3">钱币与度量衡</span>
-          <span class="badge A">证据 A</span>
-          <span class="small muted" style="margin-left:auto">相似度 6</span>
-        </div>
-        <div style="font-weight:700;margin-top:6px">硬币边缘的锯齿是谁发明的？有什么功能？</div>
-        <div class="muted small" style="margin-top:4px">这圈锯齿不是装饰，它曾拯救过整套货币系统。</div>
-        <div class="row" style="margin-top:10px;gap:8px"><button class="btn">📍 收藏</button><button class="btn">展开</button></div>
-      </div>
-    </article>
-    
-    <article class="card">
-      <div class="cover"><div class="t">巨石阵</div></div>
-      <div class="p16">
-        <div class="row" style="gap:8px">
-          <span class="badge" style="background:#eef2ff;color:#3730a3">失落与误读</span>
-          <span class="badge B">证据 B</span>
-          <span class="small muted" style="margin-left:auto">相似度 6</span>
-        </div>
-        <div style="font-weight:700;margin-top:6px">巨石阵</div>
-        <div class="muted small" style="margin-top:4px">史前工程、天文观测还是仪式中心？</div>
-        <div class="row" style="margin-top:10px;gap:8px"><button class="btn">📍 收藏</button><button class="btn">展开</button></div>
-      </div>
-    </article>
-    
-    <article class="card">
-      <div class="cover"><div class="t">庞贝古城</div></div>
-      <div class="p16">
-        <div class="row" style="gap:8px">
-          <span class="badge" style="background:#eef2ff;color:#3730a3">考古与灾难</span>
-          <span class="badge A">证据 A</span>
-          <span class="small muted" style="margin-left:auto">相似度 6</span>
-        </div>
-        <div style="font-weight:700;margin-top:6px">庞贝古城</div>
-        <div class="muted small" style="margin-top:4px">‘被瞬间定格’的都市生活，真相并不浪漫。</div>
-        <div class="row" style="margin-top:10px;gap:8px"><button class="btn">📍 收藏</button><button class="btn">展开</button></div>
-      </div>
-    </article>
-    
-  </div>
+  <div id="summary" class="small muted" style="margin:8px 0 12px"></div>
+  <div id="grid" class="grid"></div>
   <div id="sentinel" style="height:12px"></div>
 </main>
-<button id="toTop" class="btn to-top hidden">▲ 回到顶部</button>
+<button id="toTop" class="btn to-top" style="display:none">▲ 回到顶部</button>
+
+<div id="mask" class="mask" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="mhead row">
+      <div class="grow" id="mTitle" style="font-weight:700"></div>
+      <button id="mClose" class="btn">关闭</button>
+    </div>
+    <div class="mbody">
+      <div class="small muted" id="mMeta"></div>
+      <div id="mHook" style="margin:8px 0 10px;font-weight:600"></div>
+      <div class="badge">标题建议</div>
+      <div id="mIdeas" class="small" style="margin-top:6px"></div>
+      <div class="badge" style="margin-top:12px;background:#f1f5f9;color:#0f172a;border-color:var(--line)">自检（8项）</div>
+      <ul class="small ul">
+        <li>是否一眼能懂（视觉锚点）</li><li>开场有反常识冲突</li><li>观看后是否有获得感</li><li>观看后是否有惊喜感</li>
+        <li>快乐</li><li>知识</li><li>共鸣</li><li>节奏</li>
+      </ul>
+    </div>
+  </div>
+</div>
 
 <script>
-window.onerror = function(msg, src, line, col, err) {
-  var el = document.getElementById('err');
-  el.style.display='block';
-  el.textContent = '脚本错误：' + msg + ' @' + (src||'inline') + ':' + line;
-};
+const families = ["标准化/制度史", "神圣之物/圣地", "失落与误读", "语言与文字", "文明边界/地图", "实验与心理", "考古与灾难", "钱币与度量衡", "科技与社会", "自然与人文"];
+const $ = s => document.querySelector(s);
+const el = (h) => { const d = document.createElement("div"); d.innerHTML = h.trim(); return d.firstElementChild; };
+const esc = (s) => String(s || "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+const norm = (t) => esc(t).replace(/[：:，,。.?!\s]/g, "").toLowerCase();
+function make(o) { return Object.assign({ visual: 1, contrarian: 1, evidenceScore: 1, controversy: 1, modern: 1, evidence: "A", tags: [], family: "标准化/制度史" }, o); }
 
-(function(){
-  try{
-    function safe(fn){try{fn&&fn()}catch(e){console.error(e)}}
-    const families=["标准化/制度史","神圣之物/圣地","失落与误读","语言与文字","文明边界/地图","实验与心理","考古与灾难","钱币与度量衡"];
-    function makeItem(o){return Object.assign({visual:1,contrarian:1,evidenceScore:1,controversy:1,modern:1,evidence:"A",tags:[],family:"标准化/制度史"},o)}
-    const basePool=[
-      makeItem({id:"pork",title:"犹太人和穆斯林为什么都不吃猪肉",hook:"同一块肉，为何在两大宗教里成了‘禁区’？",family:"神圣之物/圣地",tags:["宗教","禁忌","经典解读"],evidence:"A",visual:1,contrarian:2,modern:1,isUserHit:true}),
-      makeItem({id:"bjtime",title:"中国横跨五个时区，为什么统一使用北京时间",hook:"跨五时区，却只用一个时间，这套制度如何运转？",family:"标准化/制度史",tags:["制度史","时间","地图"],evidence:"A",contrarian:2,modern:2,isUserHit:true}),
-      makeItem({id:"coinedge",title:"硬币边缘的锯齿是谁发明的？有什么功能？",hook:"这圈锯齿不是装饰，它曾拯救过整套货币系统。",family:"钱币与度量衡",tags:["货币史","制度史","度量衡"],evidence:"A",visual:2,contrarian:2,modern:2,isUserHit:true}),
-      makeItem({id:"rosetta",title:"罗塞塔石碑：死语复活的钥匙",hook:"一块石头、三种文字，如何让古埃及‘开口说话’？",family:"神圣之物/圣地",tags:["神器","语言","考古","经典解读"],evidence:"A",visual:2}),
-      makeItem({id:"gregorian",title:"世界为何突然少了10天？格里高利历改革",hook:"1582年的一觉醒来，日历直接快进。谁按的？",family:"标准化/制度史",tags:["制度史","时间"],evidence:"A"}),
-      makeItem({id:"antikythera",title:"安提基西拉机械：古代的‘计算器’",hook:"沉船里捞出的齿轮，能算天体运动。",family:"失落与误读",tags:["史前遗迹","工程","天文"],evidence:"A"})
-    ];
-    const S={query:"",pins:[],showPinsOnly:false,online:false,autoFeed:true,webHits:[],webQueue:[],webPage:0,itemsUser:[],visibleCount:40};
-    function scoreItem(it){return (it.isUserHit?1:0)+(it.visual+it.contrarian+it.modern)-(it.controversy||0)}
-    function el(h){const d=document.createElement("div");d.innerHTML=h.trim();return d.firstElementChild}
-    function escapeHtml(s){return (s||"").replace(/[&<>\"']/g,function(m){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]})}
-    function cardHTML(item,score){
-      const pinned=S.pins.includes(item.id);
-      return '<article class="card">'
-        + '<div class="cover"><div class="t">'+escapeHtml(item.title.split(/[:：]/)[0])+'</div></div>'
-        + '<div class="p16">'
-        + '<div class="row" style="gap:8px">'
-        + (item.isUserHit?'<span class="badge" style="background:#1f6feb;color:#fff">你的样本</span>':'')
-        + '<span class="badge" style="background:#eef2ff;color:#3730a3">'+escapeHtml(item.family)+'</span>'
-        + '<span class="badge '+escapeHtml(item.evidence)+'">证据 '+escapeHtml(item.evidence)+'</span>'
-        + '<span class="small muted" style="margin-left:auto">相似度 '+Math.max(0,Math.round(score))+'</span>'
-        + '</div>'
-        + '<div style="font-weight:700;margin-top:6px">'+escapeHtml(item.title)+'</div>'
-        + '<div class="muted small" style="margin-top:4px">'+escapeHtml(item.hook||"")+'</div>'
-        + '<div class="row" style="margin-top:10px;gap:8px"><button class="btn pin">'+(pinned?"📌 已收纳":"📍 收藏")+'</button><button class="btn more">展开</button></div>'
-        + '</div></article>';
+const seeds = [
+  make({ id: "pork", title: "犹太人和穆斯林为什么都不吃猪肉", hook: "同一块肉，为何在两大宗教里成了‘禁区’？", family: "神圣之物/圣地", tags: ["宗教", "禁忌", "经典解读"], evidence: "A", isUserHit: true, contrarian: 2, modern: 1, controversy: 2 }),
+  make({ id: "bjtime", title: "中国横跨五个时区，为什么统一使用北京时间", hook: "跨五时区，却只用一个时间，这套制度如何运转？", family: "标准化/制度史", tags: ["制度史", "时间", "地图"], evidence: "A", contrarian: 2, modern: 2, isUserHit: true }),
+  make({ id: "2ndchars", title: "这是二简字", hook: "那些被废止的‘更简’汉字，为什么活不过几年？", family: "语言与文字", tags: ["语言", "文字改革", "制度史"], evidence: "A", isUserHit: true }),
+  make({ id: "seal", title: "传国玉玺之谜：为什么缺了一角", hook: "一块玉，承载王朝正统；缺角的背后是工艺还是政治？", family: "神圣之物/圣地", tags: ["神器", "国家象征", "考古"], evidence: "B", visual: 2, controversy: 2, isUserHit: true }),
+  make({ id: "atlantis", title: "亚特兰蒂斯——撒哈拉之眼", hook: "像极了传说的城邦遗迹，其实更像地质构造。", family: "失落与误读", tags: ["失落文明", "地质", "误读纠偏", "地图"], evidence: "B", visual: 2, contrarian: 2, isUserHit: true }),
+  make({ id: "coinedge", title: "硬币边缘的锯齿是谁发明的？有什么功能？", hook: "这圈锯齿不是装饰，它曾拯救过整套货币系统。", family: "钱币与度量衡", tags: ["货币史", "制度史", "度量衡"], evidence: "A", visual: 2, contrarian: 2, modern: 2, isUserHit: true }),
+  make({ id: "rosetta", title: "罗塞塔石碑：死语复活的钥匙", hook: "一块石头、三种文字，如何让古埃及‘开口说话’？", family: "神圣之物/圣地", tags: ["神器", "语言", "考古", "经典解读"], evidence: "A", visual: 2 }),
+  make({ id: "gregorian", title: "世界为何突然少了10天？格里高利历改革", hook: "1582年的一觉醒来，日历直接快进。谁按的？", family: "标准化/制度史", tags: ["制度史", "时间"], evidence: "A", contrarian: 2, modern: 2 }),
+  make({ id: "metric", title: "公制与英制：美国为什么至今不改？", hook: "一把尺子背后，是工业与政治的缠斗。", family: "钱币与度量衡", tags: ["制度史", "度量衡"], evidence: "A", contrarian: 2, modern: 2 }),
+  make({ id: "antikythera", title: "安提基西拉机械：古代的‘计算器’", hook: "沉船里捞出的齿轮，能算天体运动。", family: "失落与误读", tags: ["史前遗迹", "工程", "天文"], evidence: "A", visual: 2 }),
+  make({ id: "nazca", title: "纳斯卡线：天上的图画给谁看？", hook: "只能在空中看清的地面巨画，靠什么被画出来？", family: "失落与误读", tags: ["史前遗迹", "工程", "误读纠偏"], evidence: "A", visual: 2 }),
+  make({ id: "stonehenge", title: "巨石阵", hook: "史前工程、天文观测还是仪式中心？", family: "失落与误读", tags: ["史前遗迹", "天文"], evidence: "B", visual: 2 }),
+  make({ id: "deadsea", title: "死海古卷：文本与信仰之间", hook: "一卷古纸，如何被现代学术‘拆解’与重读？", family: "神圣之物/圣地", tags: ["神器", "经典解读", "宗教"], evidence: "A" }),
+  make({ id: "moai", title: "复活节岛 摩艾石像", hook: "靠‘外星人’搬不动，但靠人类组织能做到。", family: "失落与误读", tags: ["史前遗迹", "工程", "误读纠偏"], evidence: "A", visual: 2 }),
+  make({ id: "pangea", title: "地球的一半没有陆地——盘古大陆演变到今天", hook: "一张‘移动的地图’，把几亿年的地球史压缩成一分钟。", family: "文明边界/地图", tags: ["地质", "地球史", "地图"], evidence: "A", visual: 2, contrarian: 2, modern: 1 }),
+  // 新增的种子
+  make({ id: "ai_art", title: "AI艺术是新工具还是新骗局？", hook: "AI作画只需1秒，人类画家需要一生。创造力的边界被谁改写？", family: "科技与社会", tags: ["AI", "艺术", "版权", "未来"], evidence: "A", contrarian: 2, modern: 2, controversy: 2 }),
+  make({ id: "biometric_data", title: "指紋、人臉、虹膜：生物識別技術是否讓『身份』變得不安全？", hook: "當你的身體成了密碼，被盜取後又如何更換？", family: "科技与社会", tags: ["生物識別", "隱私", "安全", "未來"], evidence: "A", contrarian: 2, modern: 2, controversy: 1 }),
+  make({ id: "deepfakes", title: "AI換臉，我們還能相信眼睛看到的嗎？", hook: "一張照片、一段影片，如何被AI徹底篡改，真假難辨？", family: "科技与社会", tags: ["AI", "視覺", "倫理", "社會學"], evidence: "A", contrarian: 2, modern: 2, controversy: 2 }),
+  make({ id: "space_junk", title: "太空垃圾：人类在地球轨道上留下的“废墟”", hook: "万件废弃卫星、火箭残骸正在成为威胁，人类如何清理自己的太空遗产？", family: "科技与社会", tags: ["航天", "環境", "未來"], evidence: "A", contrarian: 2, modern: 2 }),
+  make({ id: "internet_archive", title: "互联网档案馆：当数字信息也有了“文物”", hook: "如何用一台服务器，为整个互联网保存记忆？", family: "科技与社会", tags: ["互联网", "歷史", "存檔", "信息"], evidence: "A", contrarian: 2, modern: 2 }),
+  make({ id: "smart_dust", title: "智能灰尘：未来战争的新形态？", hook: "比沙粒还小的微型机器人，能监测、追踪甚至攻击。这会是科幻成真吗？", family: "科技与社会", tags: ["微型機器人", "未來", "軍事"], evidence: "B", contrarian: 2, modern: 2 }),
+];
+
+const S = {
+  query: "",
+  pins: JSON.parse(localStorage.getItem("ideaScoutPins") || "[]"),
+  showPinsOnly: false,
+  online: false,
+  autoFeed: true,
+  itemsUser: [],
+  page: 0,
+  visibleCount: 40,
+  seen: new Set(),
+};
+function savePins() { localStorage.setItem("ideaScoutPins", JSON.stringify(S.pins)); }
+
+function titleIdeas(item) {
+  const h = item.title.split(/[：:]/)[0];
+  return [`关于${h}，你可能误解的3件事`, `为什么${h}明明看不见，却改变了我们的日常？`, `${h}：它是怎么影响我们的？`, `如果没有${h}，我们的生活会怎样？`];
+}
+
+function pushUnique(arr, it) {
+  const key = norm(it.title);
+  if (S.seen.has(key)) return false;
+  S.seen.add(key);
+  arr.unshift(it);
+  return true;
+}
+
+seeds.forEach(s => S.seen.add(norm(s.title)));
+
+function cardHTML(it, score) {
+  const pinned = S.pins.includes(it.id);
+  return `<article class="card">
+    <div class="cover"><div class="t">${esc(it.title.split(/[:：]/)[0])}</div></div>
+    <div class="p16">
+      <div class="row" style="gap:8px">
+        ${it.isUserHit ? '<span class="badge" style="background:#1f2937;color:#fff;border-color:#1f2937">你的样本</span>' : ''}
+        <span class="badge">${esc(it.family)}</span>
+        <span class="badge ${it.evidence === 'A' ? 'bA' : it.evidence === 'B' ? 'bB' : 'bC'}">证据 ${esc(it.evidence)}</span>
+        <span class="small muted" style="margin-left:auto">相似度 ${Math.max(0, Math.round(score))}</span>
+      </div>
+      <div style="font-weight:700;margin-top:6px">${esc(it.title)}</div>
+      <div class="muted small" style="margin-top:4px">${esc(it.hook || "")}</div>
+      <div class="chips" style="margin-top:6px">${(it.tags || []).map(t => `<span class="badge" style="background:#f8fafc;color:#0f172a">${esc(t)}</span>`).join("")}</div>
+      <div class="row" style="margin-top:10px;gap:8px">
+        <button class="btn pin ${pinned ? 'active' : ''}">${pinned ? '📌 已收纳' : '📍 收藏'}</button>
+        <button class="btn more">展开</button>
+      </div>
+    </div>
+  </article>`;
+}
+function mountCard(node, it) {
+  node.querySelector(".more").onclick = () => openDetail(it);
+  const pinBtn = node.querySelector(".pin");
+  pinBtn.onclick = () => { const i = S.pins.indexOf(it.id); if (i >= 0) S.pins.splice(i, 1); else S.pins.unshift(it.id); savePins(); update(); };
+}
+function score(it) { return (it.isUserHit ? 1 : 0) + (it.visual + it.contrarian + it.modern) - (it.controversy || 0); }
+function render() {
+  const grid = $("#grid"); grid.innerHTML = "";
+  const full = [...seeds, ...S.itemsUser];
+  const dataset = (S.showPinsOnly ? full.filter(x => S.pins.includes(x.id)) : full)
+    .map(x => ({ it: x, sc: score(x) })).sort((a, b) => b.sc - a.sc);
+  const show = dataset.slice(0, S.visibleCount);
+  $("#summary").textContent = `为你找到 ${dataset.length} 条方向相似的灵感 · 正在展示 ${show.length} 条（已去重）`;
+  show.forEach(({ it, sc }) => { const n = el(cardHTML(it, sc)); mountCard(n, it); grid.appendChild(n); });
+}
+
+function openDetail(it) {
+  $("#mTitle").textContent = it.title;
+  $("#mMeta").textContent = `家族：${it.family} · 标签：${(it.tags || []).join("、")} · 证据 ${it.evidence}`;
+  $("#mHook").textContent = it.hook || "";
+  $("#mIdeas").textContent = titleIdeas(it).join(" / ");
+  $("#mask").style.display = "flex";
+}
+$("#mClose").onclick = () => $("#mask").style.display = "none";
+$("#mask").addEventListener("click", (e) => { if (e.target.id === "mask") $("#mask").style.display = "none"; });
+
+function synth(n = 6) {
+  for (let i = 0; i < n; i++) {
+    const seed = seeds[Math.floor(Math.random() * seeds.length)];
+    const family2 = families[Math.floor(Math.random() * families.length)];
+    const id = "gen_" + Date.now() + "_" + Math.floor(Math.random() * 1e6);
+    const head = seed.title.split(/[：:]/)[0];
+    let newTitle;
+    let newHook;
+    if (Math.random() < 0.5) {
+      const variants = [`${head}如何重塑我们的生活？`, `为什么${head}明明看不见，却改变了我们的日常？`, `如果没有${head}，我们的生活会怎样？`, `关于${head}，你可能误解的3件事`];
+      newTitle = variants[Math.floor(Math.random() * variants.length)];
+      newHook = seed.hook;
+    } else {
+      const seed2 = seeds[Math.floor(Math.random() * seeds.length)];
+      newTitle = `${seed.family}遇到${seed2.family}，会产生什么新的问题？`;
+      newHook = `当${seed.family}的逻辑与${seed2.family}的视角碰撞，会如何重新解构世界？`;
     }
-    function renderGrid(){
-      var grid=document.getElementById("grid"); if(!grid) return;
-      var items=[].concat(basePool,S.itemsUser).map(function(i){return {item:i,score:scoreItem(i)}}).sort(function(a,b){return b.score-a.score}).slice(0,S.visibleCount);
-      // 在静态卡片基础上，追加动态卡片（不清空）
-      for(var i=0;i<items.length;i++){var node=el(cardHTML(items[i].item,items[i].score)); grid.appendChild(node);}
-      var sum=document.getElementById("summary"); if(sum) sum.textContent='为你找到 '+items.length+' 条方向相似的灵感 · 已加载 '+document.querySelectorAll('#grid .card').length+' 条';
-    }
-    function setup(){ renderGrid(); }
-    if(document.readyState==="loading"){ window.addEventListener("DOMContentLoaded", setup);} else { setup(); }
-  }catch(e){
-    console.error(e);
-    var el = document.getElementById('err'); el.style.display='block'; el.textContent='初始化失败：'+e.message;
+    pushUnique(S.itemsUser, make({ id, title: newTitle, hook: newHook, family: family2, tags: [...seed.tags, ...families], evidence: "B", visual: seed.visual, contrarian: seed.contrarian, modern: 1 }));
   }
-})();
+}
+
+function fetchWiki(page = 0) {
+  if (!S.online) return;
+  const baseWords = ["宗教", "制度史", "地图", "度量衡", "语言", "史前遗迹", "失落文明", "时间", "未来科技", "生物识别", "人工智能"];
+  const q = encodeURIComponent((S.query || baseWords[Math.floor(Math.random() * baseWords.length)]));
+  const off = page * 10;
+  const zh = `https://zh.wikipedia.org/w/api.php?action=query&list=search&srlimit=10&sroffset=${off}&srsearch=${q}&utf8=&format=json&origin=*`;
+  const en = `https://en.wikipedia.org/w/api.php?action=query&list=search&srlimit=10&sroffset=${off}&srsearch=${q}&utf8=&format=json&origin=*`;
+  Promise.all([fetch(zh).then(r => r.json()), fetch(en).then(r => r.json())]).then(([zhRes, enRes]) => {
+    const clean = s => (s || "").replace(/<[^>]+>/g, "");
+    const add = [];
+    (zhRes?.query?.search || []).forEach(it => add.push({ title: it.title, hook: clean(it.snippet) }));
+    (enRes?.query?.search || []).forEach(it => add.push({ title: it.title, hook: clean(it.snippet) }));
+    add.forEach(h => pushUnique(S.itemsUser, make({ id: "web_" + Date.now() + "_" + Math.floor(Math.random() * 1e6), title: h.title, hook: h.hook || ("外部线索：" + h.title), family: families[Math.floor(Math.random() * families.length)], tags: ["制度史", "外部线索"], evidence: "B" })));
+  }).catch(() => { });
+}
+
+function update() {
+  $("#btnOnline").classList.toggle("active", S.online);
+  $("#btnAuto").classList.toggle("active", S.autoFeed);
+  $("#btnOnline").textContent = S.online ? "联网:开" : "联网:关";
+  $("#btnAuto").textContent = S.autoFeed ? "自动补卡:开" : "自动补卡:关";
+  $("#btnPins").textContent = S.showPinsOnly ? "查看全部" : `清单(${S.pins.length})`;
+  render();
+}
+
+function setup() {
+  $("#q").oninput = () => { S.query = $("#q").value || ""; S.visibleCount = 40; S.itemsUser = []; if (S.online) { fetchWiki(0); } update(); };
+  $("#btnOnline").onclick = () => { S.online = !S.online; if (S.online) { fetchWiki(0); } update(); };
+  $("#btnAuto").onclick = () => { S.autoFeed = !S.autoFeed; update(); };
+  $("#btnPins").onclick = () => { S.showPinsOnly = !S.showPinsOnly; update(); };
+  $("#btnExport").onclick = () => {
+    const full = [...seeds, ...S.itemsUser].filter(i => S.pins.includes(i.id));
+    const now = new Date().toISOString().slice(0, 10);
+    const text = ["IdeaScout 选题清单（" + now + "）", "", ...full.map((i, idx) => `${idx + 1}. ${i.title}\n   Hook：${i.hook}\n   家族：${i.family}\n   标签：${(i.tags || []).join("、")}\n   证据：${i.evidence}`)].join("\n");
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "IdeaScout_清单.txt"; a.click();
+  };
+  const io = new IntersectionObserver(es => {
+    es.forEach(en => {
+      if (en.isIntersecting) {
+        S.visibleCount += 30;
+        if (S.autoFeed) {
+          if (S.online) { fetchWiki(S.page + 1); S.page++; }
+          synth(6);
+        }
+        update();
+      }
+    });
+  }, { rootMargin: "900px 0px" });
+  io.observe($("#sentinel"));
+  const topBtn = $("#toTop");
+  window.addEventListener("scroll", () => { topBtn.style.display = window.scrollY > 600 ? "block" : "none"; });
+  topBtn.onclick = () => window.scrollTo({ top: 0, behavior: "smooth" });
+  update();
+}
+setup();
 </script>
 </body>
 </html>

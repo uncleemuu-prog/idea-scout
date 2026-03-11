@@ -3,581 +3,272 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IdeaScout - 题材灵感雷达</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>IdeaScout | 流量模型驱动引擎</title>
     <style>
-        /* 使用系统默认字体，确保跨平台体验一致 */
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
-            background-color: #f8f9fa;
+        :root {
+            --bg-color: #ffffff;
+            --text-main: #1a1a1a;
+            --text-sub: #888888;
+            --accent: #000000;
+            --border: #eeeeee;
+            --tag-a: #f4f4f4; /* 人性/禁区 */
+            --tag-b: #f4f4f4; /* 消失/文献 */
+            --tag-c: #f4f4f4; /* 异质/系统 */
         }
 
-        /* 响应式瀑布流布局 */
-        #card-container {
-            column-gap: 1.25rem; /* 间距 */
-            column-count: 1;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; 
+            background: var(--bg-color); 
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
         }
-        @media (min-width: 640px) { #card-container { column-count: 2; } }
-        @media (min-width: 900px) { #card-container { column-count: 3; } }
-        @media (min-width: 1200px) { #card-container { column-count: 4; } }
-        @media (min-width: 1600px) { #card-container { column-count: 5; } }
 
-        /* 防止卡片在列中被切断 */
+        /* 顶部导航 - 极简排版 */
+        header {
+            padding: 40px 60px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        header h1 { font-weight: 300; font-size: 24px; letter-spacing: 4px; }
+        header .model-status { font-size: 12px; color: var(--text-sub); }
+
+        /* 过滤器 */
+        .filter-bar {
+            padding: 20px 60px;
+            display: flex;
+            gap: 30px;
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
+
+        .filter-item { 
+            cursor: pointer; 
+            color: var(--text-sub); 
+            transition: color 0.3s;
+            position: relative;
+        }
+        .filter-item.active { color: var(--text-main); font-weight: 500; }
+        .filter-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px; left: 0; width: 100%; height: 1px; background: var(--text-main);
+        }
+
+        /* 灵感卡片流 */
+        .scout-grid {
+            padding: 20px 60px 100px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
         .card {
-            break-inside: avoid;
-            page-break-inside: avoid;
+            border: 1px solid var(--border);
+            padding: 30px;
+            transition: all 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 280px;
         }
 
-        /* 展开/收起内容的平滑过渡 */
-        .details-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-        .card[data-expanded="true"] .details-content {
-            max-height: 500px; /* 给予一个足够大的值 */
-        }
-        
-        /* 封面标题大字的样式 */
-        .card-title-cover {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        .card:hover { border-color: var(--text-main); }
+
+        .card-tag {
+            font-size: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-sub);
+            margin-bottom: 20px;
         }
 
-        /* 切换按钮的样式 */
-        .toggle-btn[data-state="true"] {
-            background-color: #10B981; /* an green-500 color */
-            color: white;
-            border-color: #10B981;
+        .card-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            line-height: 1.4;
         }
-        .toggle-btn[data-state="false"] {
-            background-color: #6B7280; /* a gray-500 color */
+
+        .card-desc {
+            font-size: 13px;
+            color: var(--text-sub);
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border);
+            padding-top: 15px;
+            font-size: 11px;
+        }
+
+        .btn-hook {
+            cursor: pointer;
+            text-decoration: underline;
+            color: var(--text-main);
+        }
+
+        /* 联网加载按钮 */
+        .load-more {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--text-main);
             color: white;
-            border-color: #6B7280;
+            padding: 12px 40px;
+            border-radius: 30px;
+            font-size: 13px;
+            cursor: pointer;
+            letter-spacing: 2px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border: none;
+        }
+
+        /* 预览弹窗 */
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.98);
+            z-index: 100;
+            padding: 100px;
         }
     </style>
 </head>
-<body class="antialiased text-gray-800">
+<body>
 
-    <!-- 顶部固定导航栏 -->
-    <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-md shadow-sm">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center space-x-2">
-                    <svg class="h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
-                    <h1 class="text-xl font-bold text-gray-900">IdeaScout</h1>
-                </div>
-                <div class="flex items-center space-x-2 sm:space-x-3">
-                    <button id="toggle-online" title="切换在线模式" class="toggle-btn text-xs sm:text-sm px-3 py-1.5 rounded-full font-semibold transition-all duration-200">联网</button>
-                    <button id="toggle-auto-refill" title="切换自动补卡" class="toggle-btn text-xs sm:text-sm px-3 py-1.5 rounded-full font-semibold transition-all duration-200">自动补卡</button>
-                    <button id="show-pinned-list" class="relative bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 text-xs sm:text-sm px-3 py-1.5 rounded-full font-semibold transition-all duration-200">
-                        清单
-                        <span id="pinned-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">0</span>
-                    </button>
-                    <button id="export-btn" class="bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 text-xs sm:text-sm px-3 py-1.5 rounded-full font-semibold transition-all duration-200">导出</button>
-                </div>
-            </div>
-             <div class="py-2">
-                <input type="search" id="search-input" placeholder="输入关键词搜索灵感，或留空无限浏览..." class="w-full px-4 py-2 text-sm border border-gray-300 rounded-full focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow">
-            </div>
-        </div>
-    </header>
+<header>
+    <h1>IDEASCOUT</h1>
+    <div class="model-status">TRAFFIC MODEL: v2.0 (A/B/C RECOGNITION)</div>
+</header>
 
-    <!-- 主内容区 -->
-    <main class="container mx-auto p-4 sm:p-6 lg:p-8">
-        <div id="card-container"></div>
-        <div id="loading-indicator" class="text-center py-8 text-gray-500 hidden">
-            <p>正在补充新的灵感卡片...</p>
-        </div>
-        <!-- 触底加载的哨兵元素 -->
-        <div id="sentinel" class="h-10"></div>
-    </main>
+<div class="filter-bar" id="filterBar">
+    <div class="filter-item active" data-type="ALL">全部无限流</div>
+    <div class="filter-item" data-type="A">[A] 人性/心理/禁区</div>
+    <div class="filter-item" data-type="B">[B] 消失/文献/考古</div>
+    <div class="filter-item" data-type="C">[C] 异质/系统/逻辑</div>
+</div>
 
-    <!-- 回到顶部按钮 -->
-    <button id="back-to-top" class="fixed bottom-8 right-8 z-40 w-12 h-12 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 transform scale-0" title="回到顶部">
-        <svg class="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
-    </button>
-    
-    <!-- 全屏模态框 (详情页/清单) -->
-    <div id="modal" class="fixed inset-0 z-50 bg-black bg-opacity-60 hidden items-center justify-center p-4">
-        <div id="modal-content" class="bg-white rounded-lg shadow-2xl w-full max-w-3xl h-full max-h-[90vh] flex flex-col">
-            <div class="flex justify-between items-center p-4 border-b">
-                <h2 id="modal-title" class="text-xl font-bold">详情</h2>
-                <button id="modal-close" class="text-gray-400 hover:text-gray-700">&times;</button>
-            </div>
-            <div id="modal-body" class="p-6 overflow-y-auto flex-grow">
-                <!-- 内容将动态插入这里 -->
-            </div>
-        </div>
+<div class="scout-grid" id="cardGrid">
     </div>
 
+<button class="load-more" onclick="fetchNewIdeas()">联网挖掘新灵感</button>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
+<script>
+    // 1. 基于你 Top 20 数据的种子池
+    const ideaSeed = [
+        {
+            type: 'A',
+            title: '斯坦福监狱实验：未公开的录音',
+            desc: '最新披露的档案显示，部分狱卒的残暴行为并非自发，而是受到了研究者的暗示。涉及心理控制与群体极化。',
+            hook: '“如果你被赋予绝对的权力，你会在第几个小时变成恶魔？”'
+        },
+        {
+            type: 'B',
+            title: '伏尼契手稿：碳14定年的误差',
+            desc: '新的物理分析表明，手稿的羊皮纸与墨水时间并不吻合，这可能暗示了某种跨时代的伪造或重写。',
+            hook: '“这本没人能读懂的书，其材质本身就是一个跨越500年的谎言。”'
+        },
+        {
+            type: 'C',
+            title: '卡纳克神庙的“光影时钟”',
+            desc: '古埃及人在特定时刻利用石柱阴影精确锁定位点，这种几何逻辑背后是一套完全脱离现代坐标系的思维方式。',
+            hook: '“古埃及人从不用钟表，但他们把整座神庙变成了一台精准到秒的仪器。”'
+        },
+        {
+            type: 'A',
+            title: 'MK-Ultra：冷战时期的潜意识实验',
+            desc: '解密文件显示，曾有平民在完全不知情的情况下被喂食幻觉药物，旨在测试人格擦除的可行性。',
+            hook: '“你现在脑子里的这段记忆，真的是你自己的吗？”'
+        },
+        {
+            type: 'B',
+            title: '《红书》：荣格失踪的16年',
+            desc: '心理学家荣格曾将自己与潜意识对话的内容记录在羊皮卷上，充满了未知的符号与图腾。',
+            hook: '“最伟大的心理学家，曾花16年时间沉入自己精神的最底层。”'
+        }
+    ];
 
-        // --- DOM 元素 ---
-        const cardContainer = document.getElementById('card-container');
-        const sentinel = document.getElementById('sentinel');
-        const backToTopBtn = document.getElementById('back-to-top');
-        const toggleOnlineBtn = document.getElementById('toggle-online');
-        const toggleAutoRefillBtn = document.getElementById('toggle-auto-refill');
-        const showPinnedListBtn = document.getElementById('show-pinned-list');
-        const pinnedCountEl = document.getElementById('pinned-count');
-        const exportBtn = document.getElementById('export-btn');
-        const searchInput = document.getElementById('search-input');
-        const loadingIndicator = document.getElementById('loading-indicator');
-        const modal = document.getElementById('modal');
-        const modalContent = document.getElementById('modal-content');
-        const modalTitle = document.getElementById('modal-title');
-        const modalBody = document.getElementById('modal-body');
-        const modalCloseBtn = document.getElementById('modal-close');
+    let currentFilter = 'ALL';
 
-
-        // --- 数据与状态 ---
-        const SUCCESS_CASES = [
-            // 高热度主题强化
-            { title: "硬币边缘的锯齿", family: "钱币与度量衡", tags: ["货币史", "制度史", "防伪"], evidence: "A" },
-            { title: "潘博文事件", family: "都市传说", tags: ["平行宇宙", "集体记忆", "网络悬案"], evidence: "B" },
-            { title: "猪肉禁忌的起源", family: "神圣之物/圣地", tags: ["宗教", "禁忌", "饮食文化"], evidence: "A" },
-            { title: "中国为什么使用单一时区", family: "标准化/制度史", tags: ["制度史", "时间", "国家治理"], evidence: "A" },
-            { title: "庞贝古城的末日", family: "考古与灾难", tags: ["考古", "灾难史", "古罗马"], evidence: "A" },
-            { title: "复活节岛石像之谜", family: "失落与误读", tags: ["史前遗迹", "工程", "失落文明"], evidence: "A" },
-            { title: "犹太人的哭墙", family: "神圣之物/圣地", tags: ["圣地", "宗教", "犹太史"], evidence: "A" },
-            { title: "第25号宇宙实验", family: "实验与心理", tags: ["行为学", "社会实验", "人口密度"], evidence: "A" },
-            { title: "巴别塔：语言的起源神话", family: "语言与文字", tags: ["神话", "语言", "经典解读"], evidence: "B" },
-            { title: "抚仙湖水下古城", family: "失落与误读", tags: ["水下考古", "争议", "神秘现象"], evidence: "B" },
-            { title: "撒哈拉之眼", family: "地质奇观", tags: ["地质", "地图", "亚特兰蒂斯"], evidence: "B" },
-            { title: "二简字的历史", family: "语言与文字", tags: ["语言", "文字改革", "制度史"], evidence: "A" },
-            { title: "诺亚方舟的传说与考古", family: "神圣之物/圣地", tags: ["神话", "考古", "圣经故事"], evidence: "B" },
-            
-            // 原始案例保留
-            { title: "传国玉玺", family: "神圣之物/圣地", tags: ["神器", "国家象征", "考古"], evidence: "B" },
-            { title: "巨石阵", family: "失落与误读", tags: ["史前遗迹", "工程", "天文"], evidence: "B" },
-            { title: "费米悖论", family: "地外文明", tags: ["费米悖论", "天体物理", "外星人"], evidence: "B" },
-            { title: "斯坦福监狱实验", family: "实验与心理", tags: ["社会心理学", "人性", "著名实验"], evidence: "A" },
-            { title: "MKUltra计划", family: "争议事件", tags: ["阴谋论", "冷战", "CIA"], evidence: "B" }
-        ];
-
-        const TITLE_TEMPLATES = [
-            "{X} 的历史与演变",
-            "深入解析：{X} 的核心原理",
-            "{X} 对现代社会的影响",
-            "案例研究：{X}",
-            "探索 {X} 的不同视角",
-            "{X}：一个简明介绍"
-        ];
+    // 2. 渲染卡片逻辑
+    function renderCards(data) {
+        const grid = document.getElementById('cardGrid');
+        grid.innerHTML = '';
+        const filtered = data.filter(item => currentFilter === 'ALL' || item.type === currentFilter);
         
-        const KEYWORD_POOL = [
-            // 高热度主题相关
-            "古代货币", "防伪技术", "集体记忆偏差", "平行时空", "饮食禁忌", "文化符号", "时区划分", "国家标准",
-            "火山灾害", "古城遗址", "考古发现", "巨石文化", "未解之谜", "圣地历史", "动物行为学", "社会心理学实验",
-            "语言学神话", "水下考古", "神秘地貌", "汉字简化", "大洪水传说", "圣经考古", "传国玉玺",
-            
-            // 原始关键词池保留与扩展
-            "宗教", "制度史", "地图", "度量衡", "语言", "史前遗迹", "失落文明", "考古", "神话", "禁忌",
-            "薛定谔的猫", "双缝实验", "暗物质", "弦理论", "量子纠缠", "诺斯底主义", "死海古卷", "卡巴拉", "圣杯传说",
-            "费米悖论", "德雷克公式", "51区", "罗斯威尔事件", "瘦长人", "裂口女", "如月车站", "斯坦福监狱实验",
-            "米尔格拉姆实验", "旁观者效应", "认知失调", "曼德拉效应", "安慰剂效应", "达克效应"
-        ];
-
-        const CHECKLIST_ITEMS = ["一眼能懂", "开场反常识", "获得感", "惊喜感", "快乐", "知识", "共鸣", "节奏"];
-
-        let state = {
-            cards: [],
-            pinnedIds: new Set(JSON.parse(localStorage.getItem('ideaScoutPins') || '[]')),
-            seenKeys: new Set(),
-            isLoading: false,
-            isShowingPinned: false,
-            prefs: JSON.parse(localStorage.getItem('ideaScoutPrefs') || JSON.stringify({ isOnline: true, isAutoRefill: true }))
-        };
-
-        // --- 核心功能 ---
-
-        // 规范化标题用于去重
-        const getUniqueKey = (title) => {
-            if (!title) return '';
-            let key = title.toString().toLowerCase();
-            // 全角转半角
-            key = key.replace(/[\uff01-\uff5e]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xfee0));
-            // 去除模板词、标点、空格等
-            const prefixes = ["为什么", "关于", "这是"];
-            const suffixes = ["你可能误解的3件事", "之谜", "是谁发明的"];
-            prefixes.forEach(p => { if (key.startsWith(p)) key = key.slice(p.length); });
-            suffixes.forEach(s => { if (key.endsWith(s)) key = key.slice(0, -s.length); });
-            return key.replace(/[\s!"#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~，。！？；：“”‘’「」『』（）《》〈〉【】——…￥]/g, "").trim();
-        };
-
-        // 从维基百科获取数据
-        const fetchFromWikipedia = async (query) => {
-            if (!state.prefs.isOnline) return [];
-            try {
-                const zhUrl = `https://zh.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*`;
-                const enUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*`;
-                const [zhRes, enRes] = await Promise.all([fetch(zhUrl), fetch(enUrl)]);
-                if (!zhRes.ok && !enRes.ok) throw new Error('Both APIs failed');
-                const zhData = zhRes.ok ? await zhRes.json() : { query: { search: [] } };
-                const enData = enRes.ok ? await enRes.json() : { query: { search: [] } };
-                return [...zhData.query.search, ...enData.query.search];
-            } catch (error) {
-                console.error("Wikipedia API fetch failed:", error);
-                // 自动切换到离线模式
-                state.prefs.isOnline = false;
-                updateToggleButtons();
-                return [];
-            }
-        };
-
-        // 生成卡片数据
-        const generateCardData = async (count = 20, query = '') => {
-            if (state.isLoading) return;
-            state.isLoading = true;
-            loadingIndicator.classList.remove('hidden');
-
-            const newCards = [];
-            const searchQuery = query || KEYWORD_POOL[Math.floor(Math.random() * KEYWORD_POOL.length)];
-            let wikiResults = await fetchFromWikipedia(searchQuery);
-
-            let attempts = 0;
-            while (newCards.length < count && attempts < count * 5) {
-                attempts++;
-                let card;
-                
-                // 优先使用在线数据
-                if (wikiResults.length > 0) {
-                    const result = wikiResults.shift();
-                    const baseTitle = result.title;
-                    const newTitle = baseTitle; // 直接使用基础标题，避免营销句式
-                    
-                    card = {
-                        id: `wiki-${result.pageid}-${Date.now()}`,
-                        title: newTitle,
-                        hook: result.snippet.replace(/<.*?>/g, ''),
-                        family: "在线衍生",
-                        tags: [searchQuery],
-                        evidence: "C",
-                        source: { type: 'wikipedia', originalTitle: baseTitle, pageid: result.pageid }
-                    };
-                } else { // 兜底使用离线合成
-                    const base = SUCCESS_CASES[Math.floor(Math.random() * SUCCESS_CASES.length)];
-                    const coreConcept = base.title.split('—')[0].split('：')[0];
-                    const newTitle = coreConcept; // 直接使用核心概念，避免营销句式
-
-                    card = {
-                        id: `offline-${Date.now()}-${Math.random()}`,
-                        title: newTitle,
-                        hook: `这是一个基于 "${base.title}" 灵感合成的选题。`,
-                        family: base.family,
-                        tags: [...base.tags],
-                        evidence: base.evidence,
-                        source: { type: 'offline', originalTitle: base.title }
-                    };
-                }
-
-                const uniqueKey = getUniqueKey(card.title);
-                if (uniqueKey && !state.seenKeys.has(uniqueKey)) {
-                    state.seenKeys.add(uniqueKey);
-                    newCards.push(card);
-                }
-            }
-
-            state.cards.push(...newCards);
-            renderCards(newCards);
-
-            state.isLoading = false;
-            loadingIndicator.classList.add('hidden');
-        };
-
-        // 渲染卡片到DOM
-        const renderCards = (cardsToRender) => {
-            if (state.isShowingPinned) {
-                 const pinnedCards = state.cards.filter(c => state.pinnedIds.has(c.id));
-                 cardsToRender = pinnedCards;
-                 cardContainer.innerHTML = ''; // 清空只显示收藏
-            }
-
-            const fragment = document.createDocumentFragment();
-            for (const card of cardsToRender) {
-                const cardEl = document.createElement('div');
-                cardEl.className = 'card bg-white p-4 mb-5 rounded-lg shadow-md transition-shadow hover:shadow-xl';
-                cardEl.dataset.id = card.id;
-
-                const isPinned = state.pinnedIds.has(card.id);
-
-                cardEl.innerHTML = `
-                    <div class="cursor-pointer" data-action="view-details">
-                        <div class="flex justify-between items-start mb-2">
-                            <span class="text-xs font-semibold text-indigo-600">${card.family}</span>
-                            <span class="text-xs font-bold border rounded-full px-2 py-0.5">${card.evidence}</span>
-                        </div>
-                        <h3 class="card-title-cover text-2xl font-bold mb-3">${card.title}</h3>
-                        <p class="text-sm text-gray-600 mb-3">${card.hook}</p>
-                        <div class="flex flex-wrap gap-1.5">
-                            ${card.tags.map(tag => `<span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">${tag}</span>`).join('')}
-                        </div>
-                    </div>
-                    <div class="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
-                        <div class="flex items-center space-x-4">
-                            <button data-action="pin" class="flex items-center space-x-1.5 text-sm ${isPinned ? 'text-red-500 font-bold' : 'text-gray-500 hover:text-red-500'}">
-                                <svg class="w-5 h-5" fill="${isPinned ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                                <span>${isPinned ? '已收纳' : '收藏'}</span>
-                            </button>
-                            <button data-action="expand" class="flex items-center space-x-1.5 text-sm text-gray-500 hover:text-indigo-600">
-                                <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                <span>展开</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="details-content mt-4">
-                        <h4 class="font-bold text-sm mb-2">标题建议</h4>
-                        <ul class="list-disc list-inside text-sm text-gray-700 space-y-1 mb-4">
-                            ${generateTitles(card.source.originalTitle || card.title).slice(0, 3).map(t => `<li>${t}</li>`).join('')}
-                        </ul>
-                        <h4 class="font-bold text-sm mb-2">8项自检清单</h4>
-                        <div class="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm text-gray-700">
-                            ${CHECKLIST_ITEMS.map(item => `
-                                <label class="flex items-center space-x-2">
-                                    <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                                    <span>${item}</span>
-                                </label>`).join('')}
-                        </div>
-                    </div>
-                `;
-                fragment.appendChild(cardEl);
-            }
-            cardContainer.appendChild(fragment);
-        };
-        
-        // 生成多种标题提法
-        const generateTitles = (baseTitle) => {
-            return TITLE_TEMPLATES.map(t => t.replace("{X}", baseTitle));
-        };
-
-        // --- 事件处理 ---
-        
-        // 卡片交互（事件委托）
-        cardContainer.addEventListener('click', (e) => {
-            const button = e.target.closest('button');
-            const cardEl = e.target.closest('.card');
-            if (!cardEl) return;
-
-            if (button) {
-                const action = button.dataset.action;
-                if (action === 'pin') {
-                    togglePin(cardEl.dataset.id, button);
-                } else if (action === 'expand') {
-                    toggleExpand(cardEl, button);
-                }
-            } else if (e.target.closest('[data-action="view-details"]')) {
-                const cardData = state.cards.find(c => c.id === cardEl.dataset.id);
-                if (cardData) showDetailModal(cardData);
-            }
-        });
-
-        // 收藏/取消
-        const togglePin = (cardId, button) => {
-            if (state.pinnedIds.has(cardId)) {
-                state.pinnedIds.delete(cardId);
-            } else {
-                state.pinnedIds.add(cardId);
-            }
-            localStorage.setItem('ideaScoutPins', JSON.stringify(Array.from(state.pinnedIds)));
-            updatePinnedCount();
-            
-            const isPinned = state.pinnedIds.has(cardId);
-            button.classList.toggle('text-red-500', isPinned);
-            button.classList.toggle('font-bold', isPinned);
-            button.classList.toggle('text-gray-500', !isPinned);
-            button.querySelector('svg').setAttribute('fill', isPinned ? 'currentColor' : 'none');
-            button.querySelector('span').textContent = isPinned ? '已收纳' : '收藏';
-
-            if(state.isShowingPinned) {
-                 renderCards([]); // 重新渲染收藏列表
-            }
-        };
-        
-        // 展开/收起
-        const toggleExpand = (cardEl, button) => {
-            const isExpanded = cardEl.dataset.expanded === 'true';
-            cardEl.dataset.expanded = !isExpanded;
-            button.querySelector('svg').classList.toggle('rotate-180', !isExpanded);
-        };
-
-        // 显示详情模态框
-        const showDetailModal = (card) => {
-            modalTitle.textContent = "灵感详情";
-            modalBody.innerHTML = `
-                <div class="space-y-6">
-                    <h1 class="text-3xl font-extrabold text-gray-900">${card.title}</h1>
-                    <div>
-                        <h3 class="text-lg font-bold border-b-2 border-indigo-500 pb-1 mb-3">10秒开场 (Hook)</h3>
-                        <p class="text-gray-700 leading-relaxed">${card.hook}</p>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-bold border-b-2 border-indigo-500 pb-1 mb-3">3-5个标题提法</h3>
-                        <ul class="list-disc list-inside text-gray-700 space-y-2">
-                            ${generateTitles(card.source.originalTitle || card.title).map(t => `<li>${t}</li>`).join('')}
-                        </ul>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-bold border-b-2 border-indigo-500 pb-1 mb-3">要点提纲</h3>
-                        <ul class="list-disc list-inside text-gray-700 space-y-2">
-                            <li>要点 1：探索 ${card.tags[0] || '核心概念'} 的起源与背景。</li>
-                            <li>要点 2：分析它如何通过 ${card.family || '特定机制'} 产生深远影响。</li>
-                            <li>要点 3：讨论它在当代的启示或争议。</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-bold border-b-2 border-indigo-500 pb-1 mb-3">60-90秒讲述骨架</h3>
-                        <div class="space-y-4 text-gray-700">
-                            <p><strong>开场：</strong>${card.hook} 这一切，都要从...说起。</p>
-                            <p><strong>主体：</strong>首先，我们需要了解... 接着，一个关键的转折点出现了... 这最终导致了...</p>
-                            <p><strong>结尾：</strong>所以，下次当你看到/想到 ${card.source.originalTitle || card.title} 时，你就会明白，它不仅仅是...，更是...</p>
-                        </div>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-bold border-b-2 border-indigo-500 pb-1 mb-3">延伸阅读/参考</h3>
-                        <a href="https://zh.wikipedia.org/wiki/${encodeURIComponent(card.source.originalTitle || card.title)}" target="_blank" class="text-indigo-600 hover:underline">在维基百科上阅读更多关于 "${card.source.originalTitle || card.title}" 的内容 &rarr;</a>
-                    </div>
+        filtered.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div>
+                    <div class="card-tag">[ Category ${item.type} ]</div>
+                    <div class="card-title">${item.title}</div>
+                    <div class="card-desc">${item.desc}</div>
+                </div>
+                <div class="card-footer">
+                    <span class="btn-hook" onclick="alert('${item.hook}')">获取开篇钩子</span>
+                    <span>FACT CHECKED</span>
                 </div>
             `;
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            document.body.style.overflow = 'hidden'; // 禁止背景滚动
-        };
-
-        // 关闭模态框
-        const closeModal = () => {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            document.body.style.overflow = '';
-        };
-        modalCloseBtn.addEventListener('click', closeModal);
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeModal();
+            grid.appendChild(card);
         });
+    }
 
-
-        // 无限滚动
-        const observer = new IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting && !state.isLoading && state.prefs.isAutoRefill && !state.isShowingPinned) {
-                generateCardData(20, searchInput.value.trim());
-            }
-        }, { rootMargin: '200px' });
-        observer.observe(sentinel);
+    // 3. 模拟联网挖掘 (接入 Wikipedia API 的逻辑)
+    async function fetchNewIdeas() {
+        const btn = document.querySelector('.load-more');
+        btn.innerText = "正在同步全球文献池...";
         
-        // 回到顶部
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 600) {
-                backToTopBtn.classList.remove('scale-0');
-            } else {
-                backToTopBtn.classList.add('scale-0');
-            }
-        });
-        backToTopBtn.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-        
-        // 搜索功能
-        let searchTimeout;
-        searchInput.addEventListener('input', () => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                cardContainer.innerHTML = '';
-                state.cards = [];
-                state.seenKeys.clear();
-                window.scrollTo(0, 0);
-                generateCardData(30, searchInput.value.trim());
-            }, 500);
-        });
+        try {
+            // 这里利用 Wikipedia 随机 API 模拟联网过程
+            const response = await fetch('https://en.wikipedia.org/api/rest_v1/page/random/summary');
+            const data = await response.json();
+            
+            // 自动化分类逻辑 (根据关键词简单分类)
+            let type = 'C';
+            if (data.extract.includes('psychology') || data.extract.includes('human')) type = 'A';
+            if (data.extract.includes('ancient') || data.extract.includes('manuscript')) type = 'B';
 
-        // --- 顶部控制栏 ---
-        
-        // 更新收藏计数
-        const updatePinnedCount = () => {
-            pinnedCountEl.textContent = state.pinnedIds.size;
-        };
+            const newIdea = {
+                type: type,
+                title: data.title,
+                desc: data.extract,
+                hook: `从${data.title}的未知面切入，利用反直觉叙事。`
+            };
 
-        // 更新开关按钮UI
-        const updateToggleButtons = () => {
-            toggleOnlineBtn.dataset.state = state.prefs.isOnline;
-            toggleOnlineBtn.textContent = state.prefs.isOnline ? '联网:开' : '联网:关';
-            toggleAutoRefillBtn.dataset.state = state.prefs.isAutoRefill;
-            toggleAutoRefillBtn.textContent = state.prefs.isAutoRefill ? '补卡:开' : '补卡:关';
-        };
+            ideaSeed.unshift(newIdea); // 新灵感置顶
+            renderCards(ideaSeed);
+            btn.innerText = "联网挖掘新灵感";
+        } catch (e) {
+            alert("联网失败，请检查网络或 CORS 限制");
+            btn.innerText = "联网挖掘新灵感";
+        }
+    }
 
-        // 切换在线模式
-        toggleOnlineBtn.addEventListener('click', () => {
-            state.prefs.isOnline = !state.prefs.isOnline;
-            localStorage.setItem('ideaScoutPrefs', JSON.stringify(state.prefs));
-            updateToggleButtons();
-        });
-
-        // 切换自动补卡
-        toggleAutoRefillBtn.addEventListener('click', () => {
-            state.prefs.isAutoRefill = !state.prefs.isAutoRefill;
-            localStorage.setItem('ideaScoutPrefs', JSON.stringify(state.prefs));
-            updateToggleButtons();
-        });
-
-        // 显示收藏清单
-        showPinnedListBtn.addEventListener('click', () => {
-            state.isShowingPinned = !state.isShowingPinned;
-
-            if(state.isShowingPinned) {
-                showPinnedListBtn.classList.add('bg-indigo-100', 'border-indigo-500');
-                const pinnedCards = state.cards.filter(c => state.pinnedIds.has(c.id));
-                if (pinnedCards.length > 0) {
-                    cardContainer.innerHTML = '';
-                    renderCards(pinnedCards);
-                } else {
-                    cardContainer.innerHTML = `<div class="col-span-full text-center py-10"><p class="text-gray-500">你的清单是空的。点击卡片上的“收藏”按钮来添加灵感。</p></div>`;
-                }
-            } else {
-                 showPinnedListBtn.classList.remove('bg-indigo-100', 'border-indigo-500');
-                 cardContainer.innerHTML = '';
-                 renderCards(state.cards);
-            }
-        });
-
-        // 导出功能
-        exportBtn.addEventListener('click', () => {
-            if (state.pinnedIds.size === 0) {
-                alert("收藏清单是空的，无法导出。");
-                return;
-            }
-            const pinnedCards = state.cards.filter(c => state.pinnedIds.has(c.id));
-            let content = "IdeaScout 收藏清单\n====================\n\n";
-            pinnedCards.forEach((card, index) => {
-                content += `${index + 1}. 标题: ${card.title}\n`;
-                content += `   Hook: ${card.hook}\n`;
-                content += `   家族: ${card.family}\n`;
-                content += `   标签: ${card.tags.join(', ')}\n`;
-                content += `   证据等级: ${card.evidence}\n\n`;
-            });
-            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `IdeaScout_清单_${new Date().toISOString().slice(0,10)}.txt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        });
-
-        // --- 初始化 ---
-        const init = () => {
-            updatePinnedCount();
-            updateToggleButtons();
-            generateCardData(30); // 初始加载
-        };
-
-        init();
+    // 4. 初始化过滤器
+    document.getElementById('filterBar').addEventListener('click', (e) => {
+        if (e.target.classList.contains('filter-item')) {
+            document.querySelectorAll('.filter-item').forEach(el => el.classList.remove('active'));
+            e.target.classList.add('active');
+            currentFilter = e.target.getAttribute('data-type');
+            renderCards(ideaSeed);
+        }
     });
-    </script>
+
+    // 初始渲染
+    renderCards(ideaSeed);
+
+</script>
+
 </body>
 </html>
-
-
-
